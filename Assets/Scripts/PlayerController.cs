@@ -10,6 +10,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float sprintAcceleration;
     [SerializeField] private float drag=0.1f;
     [SerializeField] private float movingThreshold=0.01f;
+    [SerializeField] private float jumpSpeed;
+    [SerializeField] private float gravity;
+    private float verticalVelocity;
     [Header("Camera")]
     [SerializeField] private float lookSenseH=0.1f;
     [SerializeField] private float lookSenseV=0.1f;
@@ -35,6 +38,7 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         UpdateMovementState();
+        HandleGravity();
        HandleLateralMovement();
     }
 
@@ -45,19 +49,45 @@ public class PlayerController : MonoBehaviour
         //aşağıda fonksiyon var
         bool isMovingLaterally = IsMovingLaterally();
         bool isSprinting = PlayerLocomotionMap.instance._sprintToggleOn && isMovingLaterally;
+        bool isGrounded = IsGrounded();
         //eğer hareket varsa durum değişiyor.
         PlayerMovementState lateralState = isSprinting
             ? PlayerMovementState.Sprinting:
             isMovingLaterally || isMovementInput 
                 ? PlayerMovementState.Running
             : PlayerMovementState.Idling;
+        
         _playerState.SetPlayerMovementState(lateralState);
-    }
 
+        if (!isGrounded&&_characterController.velocity.y > 0)
+        {
+            _playerState.SetPlayerMovementState(PlayerMovementState.Jumping);
+        }
+        else if (!isGrounded&&_characterController.velocity.y < 0)
+        {
+            _playerState.SetPlayerMovementState(PlayerMovementState.Falling);
+        }
+    }
+    private void HandleGravity()
+    {
+        bool isGrounded = _playerState.InGroundedState();
+
+        if (isGrounded && verticalVelocity < 0)
+            verticalVelocity = 0;
+
+        verticalVelocity -= gravity * Time.deltaTime;
+
+        if (PlayerLocomotionMap.instance._jumpPressed && isGrounded)
+        {
+            verticalVelocity += Mathf.Sqrt(gravity * 3 * jumpSpeed);
+        }
+    }
     private void HandleLateralMovement()
     {
-        //isSiprinting durumumu referans aldık.
+        //isSprinting durumumu referans aldık.
         bool isSprinting = _playerState.currentPlayerState == PlayerMovementState.Sprinting;
+        //isGrounded referansı
+        bool isGrounded = _playerState.InGroundedState();
         //yanal ivmelenme durumu 
         float lateralAcceleration = isSprinting ? sprintAcceleration : runAcceleration;
         //yanal hız durumu
@@ -75,10 +105,11 @@ public class PlayerController : MonoBehaviour
         Vector3 currentDrag = newVelocity.normalized * drag * Time.deltaTime;
         newVelocity = (newVelocity.magnitude > drag * Time.deltaTime) ? newVelocity - currentDrag : Vector3.zero;
         newVelocity = Vector3.ClampMagnitude(newVelocity, clampLateralMagnitude);
+        //yeni hızın ysine dikey hızımızı ekliyoruz.
+        newVelocity.y += verticalVelocity;
         
         _characterController.Move(newVelocity * Time.deltaTime);
     }
-
     private void LateUpdate()
     {
         // Mouse/joystick inputları ile kamera rotasyonu güncelle
@@ -115,5 +146,10 @@ public class PlayerController : MonoBehaviour
         //hareket hızının belli bir değerin üstünde olup olmadığına bakıyoruz.Hareketin olup olmadığı ve hızını ölçer.
         Vector3 lateralVelocity = new Vector3(_characterController.velocity.x, 0, _characterController.velocity.z);
         return lateralVelocity.magnitude > movingThreshold;
+    }
+
+    private bool IsGrounded()
+    {
+        return _characterController.isGrounded;
     }
 }

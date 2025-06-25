@@ -10,6 +10,10 @@ public class PlayerAnimation : MonoBehaviour
     private static int inputXHash = Animator.StringToHash("inputX");
     private static int inputYHash = Animator.StringToHash("inputY");
     private static int inputMagnitudeHash = Animator.StringToHash("inputMagnitude");
+    private static int isGroundedHash = Animator.StringToHash("isGrounded");
+    private static int isFallingHash = Animator.StringToHash("isFalling");
+    private static int isJumpingHash = Animator.StringToHash("isJumping");
+
 
     private Vector3 currentBlendInput = Vector3.zero;
     private PlayerState _playerState;
@@ -26,8 +30,15 @@ public class PlayerAnimation : MonoBehaviour
 
     public void UpdateAnimationState()
     {
-        //isSprinting durumunu referans aldık.
+        //statlerin durumunu referans aldık.
+        bool isIdling = _playerState.currentPlayerState == PlayerMovementState.Idling;
+        bool isRunning = _playerState.currentPlayerState == PlayerMovementState.Running;
         bool isSprinting = _playerState.currentPlayerState == PlayerMovementState.Sprinting;
+        bool isJumping = _playerState.currentPlayerState == PlayerMovementState.Jumping;
+        bool isFalling = _playerState.currentPlayerState == PlayerMovementState.Falling;
+        bool isGrounded = _playerState.InGroundedState();
+        
+        
         
         //kalvyeden aldığımız input girdisinin referansı.Eğer koşuyorsa inputun 1.5 çarpanı.
         Vector2 inputTarget = isSprinting ? PlayerLocomotionMap.instance._moveInput * 1.5f : PlayerLocomotionMap.instance._moveInput;
@@ -37,6 +48,9 @@ public class PlayerAnimation : MonoBehaviour
         //inputun girdisi ile tanımladığımız için currentblendınputtan çektik.
         float inputMagnitude = currentBlendInput.magnitude;
         
+        _animator.SetBool(isGroundedHash,isGrounded);
+        _animator.SetBool(isJumpingHash,isJumping);
+        _animator.SetBool(isFallingHash,isFalling);
         _animator.SetFloat(inputXHash,currentBlendInput.x);
         _animator.SetFloat(inputYHash,currentBlendInput.y);
         _animator.SetFloat(inputMagnitudeHash,inputMagnitude);

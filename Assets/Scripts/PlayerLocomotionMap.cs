@@ -10,6 +10,8 @@ public class PlayerLocomotionMap : MonoBehaviour,InputControls.IPlayerActionsAct
     public Vector2 _moveInput { get; private set; }
     public Vector2 _lookInput { get; private set; }
     public bool _sprintToggleOn { get; private set; }
+    
+    public bool _jumpPressed { get; private set; }
 
     
     public static PlayerLocomotionMap instance;
@@ -41,6 +43,11 @@ public class PlayerLocomotionMap : MonoBehaviour,InputControls.IPlayerActionsAct
         _inputControls.PlayerActions.RemoveCallbacks(this);
     }
 
+    private void LateUpdate()
+    {
+        _jumpPressed = false;
+    }
+
     public void OnMove(InputAction.CallbackContext context)
     {
         _moveInput = context.ReadValue<Vector2>();
@@ -61,5 +68,13 @@ public class PlayerLocomotionMap : MonoBehaviour,InputControls.IPlayerActionsAct
         {
             _sprintToggleOn = !holdtoSprint && _sprintToggleOn;
         }
+    }
+
+    public void OnJump(InputAction.CallbackContext context)
+    {
+        if (!context.performed)
+            return;
+        
+        _jumpPressed = true;
     }
 }

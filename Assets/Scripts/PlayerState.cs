@@ -10,6 +10,15 @@ public class PlayerState : MonoBehaviour
     {
         currentPlayerState = playerMovementState;
     }
+    //Grounded olduğumuz statleri returnledik.
+    public bool InGroundedState()
+    {
+        return currentPlayerState == PlayerMovementState.Idling ||
+               currentPlayerState == PlayerMovementState.Walking ||
+               currentPlayerState == PlayerMovementState.Running ||
+               currentPlayerState == PlayerMovementState.Sprinting;
+
+    }
 }
 public enum PlayerMovementState
 {

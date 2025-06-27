@@ -10,8 +10,9 @@ public class PlayerLocomotionMap : MonoBehaviour,InputControls.IPlayerActionsAct
     public Vector2 _moveInput { get; private set; }
     public Vector2 _lookInput { get; private set; }
     public bool _sprintToggleOn { get; private set; }
-    
     public bool _jumpPressed { get; private set; }
+    
+    public bool _walkToggleOn { get; private set; }
 
     
     public static PlayerLocomotionMap instance;
@@ -76,5 +77,13 @@ public class PlayerLocomotionMap : MonoBehaviour,InputControls.IPlayerActionsAct
             return;
         
         _jumpPressed = true;
+    }
+
+    public void OnToggleWalk(InputAction.CallbackContext context)
+    {
+        if (!context.performed) 
+            return;
+        
+        _walkToggleOn = !_walkToggleOn;
     }
 }

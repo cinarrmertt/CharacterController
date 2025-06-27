@@ -285,16 +285,32 @@ PrefabInstance:
       value: 25
       objectReference: {fileID: 0}
     - target: {fileID: 3650335036953836506, guid: 1878dabe6ed6ecc49aad98cf1e23a09f, type: 3}
+      propertyPath: runSpeed
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 3650335036953836506, guid: 1878dabe6ed6ecc49aad98cf1e23a09f, type: 3}
       propertyPath: jumpSpeed
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3650335036953836506, guid: 1878dabe6ed6ecc49aad98cf1e23a09f, type: 3}
+      propertyPath: walkSpeed
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3650335036953836506, guid: 1878dabe6ed6ecc49aad98cf1e23a09f, type: 3}
       propertyPath: sprintSpeed
-      value: 7
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 3650335036953836506, guid: 1878dabe6ed6ecc49aad98cf1e23a09f, type: 3}
       propertyPath: runAcceleration
       value: 35
+      objectReference: {fileID: 0}
+    - target: {fileID: 3650335036953836506, guid: 1878dabe6ed6ecc49aad98cf1e23a09f, type: 3}
+      propertyPath: walkAcceleration
+      value: 0.15
+      objectReference: {fileID: 0}
+    - target: {fileID: 3650335036953836506, guid: 1878dabe6ed6ecc49aad98cf1e23a09f, type: 3}
+      propertyPath: rotateToTargetTime
+      value: 0.67
       objectReference: {fileID: 0}
     - target: {fileID: 3650335036953836506, guid: 1878dabe6ed6ecc49aad98cf1e23a09f, type: 3}
       propertyPath: sprintAcceleration

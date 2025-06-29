@@ -2,7 +2,7 @@
     "name": "InputControls",
     "maps": [
         {
-            "name": "PlayerActions",
+            "name": "PlayerLocomotion",
             "id": "646e67b9-9739-480e-9fe1-d7ed3e24ae68",
             "actions": [
                 {
@@ -45,6 +45,15 @@
                     "name": "ToggleWalk",
                     "type": "Button",
                     "id": "c37800a5-c21f-4705-bc1b-d24f4028bddd",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ToggleCrouch",
+                    "type": "Button",
+                    "id": "56e8cf0c-8c47-4a5f-9c75-05355f3c1b8c",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -148,6 +157,45 @@
                     "processors": "",
                     "groups": "",
                     "action": "ToggleWalk",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c3560ae7-58e6-4041-a1cb-491b4cb90537",
+                    "path": "<Keyboard>/c",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ToggleCrouch",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "PlayerAction",
+            "id": "811466b9-41b8-4ed6-9fe0-2f837437af7f",
+            "actions": [
+                {
+                    "name": "Punch",
+                    "type": "Button",
+                    "id": "cd2f3907-a483-4c4f-8da1-8cfaae7b6886",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "f4acb18b-dbc4-4ba7-9fe0-74cc4a9f69cb",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Punch",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

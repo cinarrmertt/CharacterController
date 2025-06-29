@@ -3413,6 +3413,7 @@ GameObject:
   - component: {fileID: 4531358593601941107}
   - component: {fileID: 4418546199546832959}
   - component: {fileID: 943994489111344922}
+  - component: {fileID: 5130205171668014994}
   - component: {fileID: 3650335036953836506}
   - component: {fileID: 8429919238347521984}
   - component: {fileID: 4643926884760874074}
@@ -3431,7 +3432,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4299457594647059458}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0.2, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -3486,7 +3487,7 @@ CharacterController:
   m_Radius: 0.5
   m_SlopeLimit: 45
   m_StepOffset: 0.3
-  m_SkinWidth: 0.08
+  m_SkinWidth: 0.0001
   m_MinMoveDistance: 0.00001
   m_Center: {x: 0, y: 1, z: 0}
 --- !u!114 &943994489111344922
@@ -3501,6 +3502,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 14c0e2b407b767a448afe1711e77413b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  holdToSprint: 1
+--- !u!114 &5130205171668014994
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4299457594647059458}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 83d7d47d5e2fc8c4fa25f43d8cd70f43, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &3650335036953836506
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3513,9 +3527,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c45073d66856e7648a98341674366d2a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  runSpeed: 4
-  runAcceleration: 50
-  drag: 30
+  crouchSpeed: 1
+  crouchAcceleration: 2
+  walkSpeed: 2
+  walkAcceleration: 5
+  runSpeed: 5
+  runAcceleration: 35
+  sprintSpeed: 7
+  sprintAcceleration: 50
+  drag: 15
+  movingThreshold: 0.01
+  jumpSpeed: 0.5
+  gravity: 25
+  crouchHeight: 1.2
+  crouchCenter: {x: 0, y: 0.595, z: 0}
+  playerModelRotationSpeed: 10
+  rotateToTargetTime: 0.67
   lookSenseH: 0.1
   lookSenseV: 0.1
   lookLimitMinV: -30

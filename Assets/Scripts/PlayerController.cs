@@ -5,6 +5,8 @@ using UnityEngine.InputSystem.LowLevel;
 public class PlayerController : MonoBehaviour
 {
     [Header("Move")]
+    [SerializeField] private float crouchSpeed;
+    [SerializeField] private float crouchAcceleration;
     [SerializeField] private float walkSpeed;
     [SerializeField] private float walkAcceleration;
     [SerializeField] private float runSpeed;
@@ -15,10 +17,14 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float movingThreshold=0.01f;
     [SerializeField] private float jumpSpeed;
     [SerializeField] private float gravity;
-    
+    [SerializeField] private float crouchHeight = 1.2f;
+    [SerializeField] private Vector3 crouchCenter = new Vector3(0, 0.595f, 0);
+
     private float verticalVelocity;
     private float rotatingToTargetTimer = 0;
     private bool _isRotatingClockwise = false;
+    private float standHeight;
+    private Vector3 standCenter;
     
     [Header("Animations")] 
     public float playerModelRotationSpeed = 10;
@@ -35,6 +41,7 @@ public class PlayerController : MonoBehaviour
 
     [Header("Components")]
     private CharacterController _characterController;
+    private PlayerLocomotionMap _playerLocomotionMap;
     private PlayerState _playerState;
     private Camera playerCam;
     
@@ -47,29 +54,38 @@ public class PlayerController : MonoBehaviour
     private void Awake()
     {
         _characterController = GetComponent<CharacterController>();
+        _playerLocomotionMap = GetComponent<PlayerLocomotionMap>();
         _playerState = GetComponent<PlayerState>();
         playerCam = Camera.main;
+
+        standHeight = _characterController.height;
+        standCenter = _characterController.center;
     }
 
     private void Update()
     {
-        UpdateMovementState();
-        HandleGravity();
-       HandleLateralMovement();
+        UpdateMovementState(); 
+        HandleGravity(); 
+        HandleLateralMovement(); 
+        UpdateControllerCollider();
     }
 
     private void UpdateMovementState()
     {
         bool canRun = CanRun();
         //input girdisi olup olmadığını kontrol ediyoruz
-        bool isMovementInput = PlayerLocomotionMap.instance._moveInput != Vector2.zero;
+        bool isMovementInput = _playerLocomotionMap._moveInput != Vector2.zero;
         //aşağıda fonksiyon var
         bool isMovingLaterally = IsMovingLaterally();
-        bool isSprinting = PlayerLocomotionMap.instance._sprintToggleOn && isMovingLaterally;
-        bool isWalking = (isMovingLaterally && !canRun) || PlayerLocomotionMap.instance._walkToggleOn;
+        bool isSprinting = _playerLocomotionMap._sprintToggleOn && isMovingLaterally;
+        bool isWalking = (isMovingLaterally && !canRun) || _playerLocomotionMap._walkToggleOn;
+        bool isCrouching = _playerLocomotionMap._crouchToggleOn;
         bool isGrounded = IsGrounded();
+        
         //eğer hareket varsa durum değişiyor.
-        PlayerMovementState lateralState = isWalking
+        PlayerMovementState lateralState = isCrouching 
+            ? PlayerMovementState.Crouching:
+            isWalking
             ? PlayerMovementState.Walking:
             isSprinting
             ? PlayerMovementState.Sprinting:
@@ -97,7 +113,7 @@ public class PlayerController : MonoBehaviour
 
         verticalVelocity -= gravity * Time.deltaTime;
 
-        if (PlayerLocomotionMap.instance._jumpPressed && isGrounded)
+        if (_playerLocomotionMap._jumpPressed && isGrounded)
         {
             verticalVelocity += Mathf.Sqrt(gravity * 3 * jumpSpeed);
         }
@@ -110,18 +126,22 @@ public class PlayerController : MonoBehaviour
         bool isGrounded = _playerState.InGroundedState();
         
         bool isWalking = _playerState.currentPlayerState == PlayerMovementState.Walking;
+
+        bool isCrouching = _playerState.currentPlayerState == PlayerMovementState.Crouching;
         //yanal ivmelenme durumu 
-        float lateralAcceleration = isWalking ? walkAcceleration : 
+        float lateralAcceleration = isCrouching ? crouchAcceleration :
+        isWalking ? walkAcceleration : 
             isSprinting ? sprintAcceleration : runAcceleration;
         //yanal hız durumu
-        float clampLateralMagnitude = isWalking ? walkSpeed :
+        float clampLateralMagnitude = isCrouching ? crouchSpeed :
+            isWalking ? walkSpeed :
             isSprinting ? sprintSpeed : runSpeed;
         
         Vector3 cameraForward = new Vector3(playerCam.transform.forward.x, 0, playerCam.transform.forward.z).normalized;
         Vector3 cameraRight = new Vector3(playerCam.transform.right.x, 0, playerCam.transform.right.z).normalized;
 
-        Vector3 direction = cameraRight * PlayerLocomotionMap.instance._moveInput.x +
-                            cameraForward * PlayerLocomotionMap.instance._moveInput.y;
+        Vector3 direction = cameraRight * _playerLocomotionMap._moveInput.x +
+                            cameraForward * _playerLocomotionMap._moveInput.y;
 
         Vector3 movementDelta = direction * lateralAcceleration;
         Vector3 newVelocity = _characterController.velocity + movementDelta;
@@ -143,12 +163,12 @@ public class PlayerController : MonoBehaviour
     {
         // Mouse/joystick inputları ile kamera rotasyonu güncelle
         //y inputun tersini aldık.
-        _cameraRotation.x += lookSenseH * PlayerLocomotionMap.instance._lookInput.x;
-        _cameraRotation.y -= lookSenseV * PlayerLocomotionMap.instance._lookInput.y;
+        _cameraRotation.x += lookSenseH * _playerLocomotionMap._lookInput.x;
+        _cameraRotation.y -= lookSenseV * _playerLocomotionMap._lookInput.y;
         //rotasyonu kısıtladık.
         _cameraRotation.y = Mathf.Clamp(_cameraRotation.y, lookLimitMinV, lookLimitMaxV);
         
-        _playerTargetRotation.x += transform.eulerAngles.x + lookSenseH * PlayerLocomotionMap.instance._lookInput.x;
+        _playerTargetRotation.x += transform.eulerAngles.x + lookSenseH * _playerLocomotionMap._lookInput.x;
 
         // Karakteri yatay eksende döndür (kameranın yatay açısına göre)
         //karakterin rotationMismatchi 90 dan ve hedef dönüş zamanlayıcısı 0 dan büyükse karakter dönsün.
@@ -234,6 +254,23 @@ public class PlayerController : MonoBehaviour
 
     private bool CanRun()
     {
-        return PlayerLocomotionMap.instance._moveInput.y >= Mathf.Abs(PlayerLocomotionMap.instance._moveInput.x);
+        return _playerLocomotionMap._moveInput.y >= Mathf.Abs(_playerLocomotionMap._moveInput.x);
+    }
+
+    private void UpdateControllerCollider()
+    {
+        Vector3 targetCenter = standCenter;
+        float targetHeight = standHeight;
+
+        if (_playerLocomotionMap._crouchToggleOn)
+        {
+            targetCenter = crouchCenter;
+            targetHeight = crouchHeight;
+        }
+
+        _characterController.height =
+            Mathf.Lerp(_characterController.height, targetHeight, crouchSpeed * Time.deltaTime);
+        _characterController.center =
+            Vector3.Lerp(_characterController.center, targetCenter, crouchSpeed * Time.deltaTime);
     }
 }

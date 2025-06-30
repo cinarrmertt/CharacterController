@@ -271,6 +271,15 @@ public partial class @InputControls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""DrawWeapon"",
+                    ""type"": ""Button"",
+                    ""id"": ""ad29d4ba-bbca-4443-ba85-2f2bc935b824"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -282,6 +291,17 @@ public partial class @InputControls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Punch"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""be76ab5e-dfcc-4f12-b662-804aacde67c1"",
+                    ""path"": ""<Keyboard>/tab"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""DrawWeapon"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -301,6 +321,7 @@ public partial class @InputControls: IInputActionCollection2, IDisposable
         // PlayerAction
         m_PlayerAction = asset.FindActionMap("PlayerAction", throwIfNotFound: true);
         m_PlayerAction_Punch = m_PlayerAction.FindAction("Punch", throwIfNotFound: true);
+        m_PlayerAction_DrawWeapon = m_PlayerAction.FindAction("DrawWeapon", throwIfNotFound: true);
     }
 
     ~@InputControls()
@@ -534,6 +555,7 @@ public partial class @InputControls: IInputActionCollection2, IDisposable
     private readonly InputActionMap m_PlayerAction;
     private List<IPlayerActionActions> m_PlayerActionActionsCallbackInterfaces = new List<IPlayerActionActions>();
     private readonly InputAction m_PlayerAction_Punch;
+    private readonly InputAction m_PlayerAction_DrawWeapon;
     /// <summary>
     /// Provides access to input actions defined in input action map "PlayerAction".
     /// </summary>
@@ -549,6 +571,10 @@ public partial class @InputControls: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "PlayerAction/Punch".
         /// </summary>
         public InputAction @Punch => m_Wrapper.m_PlayerAction_Punch;
+        /// <summary>
+        /// Provides access to the underlying input action "PlayerAction/DrawWeapon".
+        /// </summary>
+        public InputAction @DrawWeapon => m_Wrapper.m_PlayerAction_DrawWeapon;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -578,6 +604,9 @@ public partial class @InputControls: IInputActionCollection2, IDisposable
             @Punch.started += instance.OnPunch;
             @Punch.performed += instance.OnPunch;
             @Punch.canceled += instance.OnPunch;
+            @DrawWeapon.started += instance.OnDrawWeapon;
+            @DrawWeapon.performed += instance.OnDrawWeapon;
+            @DrawWeapon.canceled += instance.OnDrawWeapon;
         }
 
         /// <summary>
@@ -592,6 +621,9 @@ public partial class @InputControls: IInputActionCollection2, IDisposable
             @Punch.started -= instance.OnPunch;
             @Punch.performed -= instance.OnPunch;
             @Punch.canceled -= instance.OnPunch;
+            @DrawWeapon.started -= instance.OnDrawWeapon;
+            @DrawWeapon.performed -= instance.OnDrawWeapon;
+            @DrawWeapon.canceled -= instance.OnDrawWeapon;
         }
 
         /// <summary>
@@ -689,5 +721,12 @@ public partial class @InputControls: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnPunch(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "DrawWeapon" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnDrawWeapon(InputAction.CallbackContext context);
     }
 }

@@ -602,6 +602,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: TPS
       objectReference: {fileID: 0}
+    - target: {fileID: 6496635562334929614, guid: 1878dabe6ed6ecc49aad98cf1e23a09f, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -1.49
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

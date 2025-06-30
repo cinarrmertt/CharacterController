@@ -6,6 +6,7 @@ using UnityEngine.InputSystem;
 public class PlayerActionMap : MonoBehaviour,InputControls.IPlayerActionActions
 { 
     public bool punchToggleOn { get; private set; }
+    public bool drawWeaponOn { get; private set; }
     private void OnEnable()
     {
         if (PlayerInputManager.instance?._inputControls == null)
@@ -40,5 +41,13 @@ public class PlayerActionMap : MonoBehaviour,InputControls.IPlayerActionActions
             return;
 
         punchToggleOn = true;
+    }
+
+    public void OnDrawWeapon(InputAction.CallbackContext context)
+    {
+        if (!context.performed) 
+            return;
+
+        drawWeaponOn = !drawWeaponOn;
     }
 }

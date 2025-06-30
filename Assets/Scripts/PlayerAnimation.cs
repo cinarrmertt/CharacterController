@@ -25,6 +25,8 @@ public class PlayerAnimation : MonoBehaviour
     
     [Header("Action Animations")]
     private static int isAttackingHash = Animator.StringToHash("isAttacking");
+    private static int drawWeaponHash = Animator.StringToHash("drawWeapon");
+    private static int sheatWeaponHash = Animator.StringToHash("sheatWeapon");
     private static int isPlayingActionHash = Animator.StringToHash("isPlayingAction");
     private int[] actionHashes;
 
@@ -38,7 +40,7 @@ public class PlayerAnimation : MonoBehaviour
         _playerController = GetComponent<PlayerController>();
         _playerState = GetComponent<PlayerState>();
 
-        actionHashes = new[] { isAttackingHash };
+        actionHashes = new[] { isAttackingHash,drawWeaponHash,sheatWeaponHash };
     }
 
     private void Update()
@@ -76,6 +78,8 @@ public class PlayerAnimation : MonoBehaviour
         _animator.SetBool(isRotatingToTargetHash,_playerController.isRotationToTarget);
         _animator.SetBool(isFallingHash,isFalling);
         _animator.SetBool(isAttackingHash,_playerActionMap.punchToggleOn);
+        _animator.SetBool(drawWeaponHash,_playerActionMap.drawWeaponOn);
+        _animator.SetBool(sheatWeaponHash,!_playerActionMap.drawWeaponOn);
         _animator.SetBool(isPlayingActionHash,isPlayingAction);
         
         _animator.SetFloat(inputXHash,currentBlendInput.x);

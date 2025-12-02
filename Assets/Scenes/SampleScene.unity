@@ -692,6 +692,8 @@ MonoBehaviour:
   sprintSpeed: 14
   drag: 15
   movingThreshold: 0.1
+  gravity: 40
+  jumpHeight: 1.5
   lookSenseH: 0.1
   lookSenseV: 0.1
   lookLimitV: 50
@@ -730,8 +732,8 @@ CharacterController:
   m_Radius: 1
   m_SlopeLimit: 45
   m_StepOffset: 0.3
-  m_SkinWidth: 0.08
-  m_MinMoveDistance: 0.001
+  m_SkinWidth: 0.0001
+  m_MinMoveDistance: 0.00001
   m_Center: {x: 0, y: 2.1, z: 0}
 --- !u!114 &1909297489
 MonoBehaviour:

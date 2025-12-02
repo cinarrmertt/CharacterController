@@ -9,6 +9,7 @@ public class PlayerLocomotionMap : MonoBehaviour,PlayerControls.IPlayerMapAction
     public Vector2 _moveInput { get; private set; }
     public Vector2 _lookInput { get; private set; }
     public bool _sprintToggleOn { get; private set; }
+    public bool _jumpPressed { get; private set; }
 
     private void OnEnable()
     {
@@ -23,6 +24,11 @@ public class PlayerLocomotionMap : MonoBehaviour,PlayerControls.IPlayerMapAction
     {
         _playerControls.PlayerMap.Disable();
         _playerControls.PlayerMap.RemoveCallbacks(this);
+    }
+
+    private void LateUpdate()
+    {
+        _jumpPressed = false;
     }
 
     public void OnMove(InputAction.CallbackContext context)
@@ -45,5 +51,13 @@ public class PlayerLocomotionMap : MonoBehaviour,PlayerControls.IPlayerMapAction
         {
             _sprintToggleOn = !holdToSprint && _sprintToggleOn;
         }
+    }
+
+    public void OnJump(InputAction.CallbackContext context)
+    {
+        if (!context.performed)
+            return;
+        
+        _jumpPressed = true;
     }
 }

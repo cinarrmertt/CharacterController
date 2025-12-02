@@ -8,6 +8,13 @@ public class PlayerState: MonoBehaviour
     {
         currentStat=stat;
     }
+
+    public bool InGroundedState()
+    {
+        return currentStat==StatsType.Idling || 
+               currentStat==StatsType.Running || 
+               currentStat==StatsType.Sprinting;
+    }
    
 }
 public enum StatsType

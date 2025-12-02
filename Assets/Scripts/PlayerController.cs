@@ -18,6 +18,11 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float drag = 0.1f;
     [SerializeField] private float movingThreshold = 0.01f;
     private Vector3 _moveDirection = Vector3.zero;
+    
+    [Header("Gravity Settings")]
+    [SerializeField] private float gravity = 25f;
+    [SerializeField]private float jumpHeight = 1.5f;
+    private float verticalVelocity = 0f;
 
     [Header("Camera Settings")] 
     [SerializeField] private float lookSenseH = 0.1f;
@@ -38,6 +43,7 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         UpdateMovementState();
+        HandleVerticalMovement();
         HandleLateralMovement();
     }
 
@@ -58,16 +64,40 @@ public class PlayerController : MonoBehaviour
         bool isMovementInput= _playerLocomotionMap._moveInput != Vector2.zero;
         bool isMovingLaterally = IsMovingLaterally();
         bool isSprinting = _playerLocomotionMap._sprintToggleOn && isMovementInput;
+        bool isGrounded = IsGrounded();
 
         StatsType lateralState = isSprinting ? StatsType.Sprinting : 
             isMovingLaterally || isMovementInput ? StatsType.Running : StatsType.Idling;
         
         _playerState.SetPlayerMovementState(lateralState);
 
+        if (!isGrounded && _characterController.velocity.y >= 0)
+        {
+            _playerState.SetPlayerMovementState(StatsType.Jumping);
+        }
+        else if(!isGrounded && _characterController.velocity.y < 0)
+        {
+            _playerState.SetPlayerMovementState(StatsType.Falling);
+        }
+    }
+    void HandleVerticalMovement()
+    {
+        bool isGrounded = _playerState.InGroundedState();
+
+        if (isGrounded && verticalVelocity < 0)
+            verticalVelocity = 0;
+
+        verticalVelocity -= gravity * Time.deltaTime;
+
+        if (_playerLocomotionMap._jumpPressed && isGrounded)
+        {
+            verticalVelocity += Mathf.Sqrt(jumpHeight * 3f * gravity);
+        }
     }
     void HandleLateralMovement()
     {
         bool isSprinting = _playerState.currentStat==StatsType.Sprinting;
+        bool isGrounded = _playerState.InGroundedState();
         
         float lateralAcceleration = isSprinting ? sprintAcceleration : runAcceleration;
         float clampLateralSpeed = isSprinting ? sprintSpeed : runSpeed;
@@ -86,6 +116,7 @@ public class PlayerController : MonoBehaviour
         Vector3 currentDrag = newVelocity.normalized * drag * Time.deltaTime;
         newVelocity = (newVelocity.magnitude > drag * Time.deltaTime) ? newVelocity - currentDrag : Vector3.zero;
         newVelocity=Vector3.ClampMagnitude(newVelocity, clampLateralSpeed);
+        newVelocity.y += verticalVelocity;
         
         _characterController.Move(newVelocity*Time.deltaTime);
     }
@@ -94,6 +125,11 @@ public class PlayerController : MonoBehaviour
         Vector3 lateralVelocity = new Vector3(_characterController.velocity.x,0,_characterController.velocity.z);
         
         return lateralVelocity.magnitude > movingThreshold;
+    }
+
+    bool IsGrounded()
+    {
+        return _characterController.isGrounded;
     }
     
 }

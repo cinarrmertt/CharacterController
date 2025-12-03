@@ -18,11 +18,15 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float drag = 0.1f;
     [SerializeField] private float movingThreshold = 0.01f;
     private Vector3 _moveDirection = Vector3.zero;
+    private float stepOffset;
     
     [Header("Gravity Settings")]
     [SerializeField] private float gravity = 25f;
-    [SerializeField]private float jumpHeight = 1.5f;
+    [SerializeField] private float jumpHeight = 1.5f;
+    [SerializeField] private float inAirAcceleration = 0.15f;
+    [SerializeField] private LayerMask groundLayers;
     private float verticalVelocity = 0f;
+    private float antiBump;
 
     [Header("Camera Settings")] 
     [SerializeField] private float lookSenseH = 0.1f;
@@ -31,13 +35,15 @@ public class PlayerController : MonoBehaviour
 
     private Vector2 _cameraRotation = Vector2.zero;
     private Vector2 _playerTargetRotation = Vector2.zero;
-    
 
     private void Awake()
     {
         _playerLocomotionMap = GetComponent<PlayerLocomotionMap>();
         _characterController=GetComponent<CharacterController>();
         _playerState=GetComponent<PlayerState>();
+
+        antiBump = sprintSpeed;
+        stepOffset = _characterController.stepOffset;
     }
 
     private void Update()
@@ -66,42 +72,49 @@ public class PlayerController : MonoBehaviour
         bool isSprinting = _playerLocomotionMap._sprintToggleOn && isMovementInput;
         bool isGrounded = IsGrounded();
 
-        StatsType lateralState = isSprinting ? StatsType.Sprinting : 
-            isMovingLaterally || isMovementInput ? StatsType.Running : StatsType.Idling;
+        StateType lateralState = isSprinting ? StateType.Sprinting : 
+            isMovingLaterally || isMovementInput ? StateType.Running : StateType.Idling;
         
         _playerState.SetPlayerMovementState(lateralState);
 
         if (!isGrounded && _characterController.velocity.y >= 0)
         {
-            _playerState.SetPlayerMovementState(StatsType.Jumping);
+            _playerState.SetPlayerMovementState(StateType.Jumping);
+            _characterController.stepOffset = 0;
         }
         else if(!isGrounded && _characterController.velocity.y < 0)
         {
-            _playerState.SetPlayerMovementState(StatsType.Falling);
+            _playerState.SetPlayerMovementState(StateType.Falling);
+            _characterController.stepOffset = 0;
+        }
+        else
+        {
+            _characterController.stepOffset = stepOffset;
         }
     }
     void HandleVerticalMovement()
     {
         bool isGrounded = _playerState.InGroundedState();
 
-        if (isGrounded && verticalVelocity < 0)
-            verticalVelocity = 0;
-
         verticalVelocity -= gravity * Time.deltaTime;
+        
+        if (isGrounded && verticalVelocity < 0)
+            verticalVelocity = -antiBump;
 
         if (_playerLocomotionMap._jumpPressed && isGrounded)
         {
-            verticalVelocity += Mathf.Sqrt(jumpHeight * 3f * gravity);
+            verticalVelocity += antiBump + Mathf.Sqrt(jumpHeight * 3f * gravity);
         }
     }
     void HandleLateralMovement()
     {
-        bool isSprinting = _playerState.currentStat==StatsType.Sprinting;
+        bool isSprinting = _playerState.currentStat==StateType.Sprinting;
         bool isGrounded = _playerState.InGroundedState();
-        
-        float lateralAcceleration = isSprinting ? sprintAcceleration : runAcceleration;
-        float clampLateralSpeed = isSprinting ? sprintSpeed : runSpeed;
-        
+
+        float lateralAcceleration =
+            !isGrounded ? inAirAcceleration : isSprinting ? sprintAcceleration : runAcceleration;
+        float clampLateralSpeed = !isGrounded ? sprintSpeed : isSprinting ? sprintSpeed : runSpeed;
+         
         Vector3 cameraForward = new Vector3(_playerCamera.transform.forward.x, 
             0, _playerCamera.transform.forward.z).normalized;
         Vector3 cameraRight = new Vector3(_playerCamera.transform.right.x, 
@@ -115,11 +128,26 @@ public class PlayerController : MonoBehaviour
 
         Vector3 currentDrag = newVelocity.normalized * drag * Time.deltaTime;
         newVelocity = (newVelocity.magnitude > drag * Time.deltaTime) ? newVelocity - currentDrag : Vector3.zero;
-        newVelocity=Vector3.ClampMagnitude(newVelocity, clampLateralSpeed);
+        newVelocity=Vector3.ClampMagnitude(new Vector3(newVelocity.x,0,newVelocity.z), clampLateralSpeed);
         newVelocity.y += verticalVelocity;
+        newVelocity = !isGrounded ? HandleSteepWalls(newVelocity) : newVelocity;
         
         _characterController.Move(newVelocity*Time.deltaTime);
     }
+    
+    private Vector3 HandleSteepWalls(Vector3 velocity)
+    {
+        Vector3 normal = CharacterControllerUtils.GetNormalWithSphereCast(_characterController,
+            groundLayers);
+        float angle = Vector3.Angle(normal, Vector3.up);
+        bool validAngle = angle <= _characterController.slopeLimit;
+
+        if (!validAngle && verticalVelocity < 0f)
+            velocity = Vector3.ProjectOnPlane(velocity, normal);
+
+        return velocity;
+    }
+    
     bool IsMovingLaterally()
     {
         Vector3 lateralVelocity = new Vector3(_characterController.velocity.x,0,_characterController.velocity.z);
@@ -129,7 +157,30 @@ public class PlayerController : MonoBehaviour
 
     bool IsGrounded()
     {
+        bool grounded = _playerState.InGroundedState() ? IsGroundedWhileGrounded() : IsGroundedWhileAirborne();
+
+        return grounded;
+    }
+    private bool IsGroundedWhileGrounded()
+    {
+        Vector3 spherePosition = new Vector3(transform.position.x, 
+            transform.position.y - _characterController.radius, 
+            transform.position.z);
+
+        bool grounded = Physics.CheckSphere(spherePosition, _characterController.radius, 
+            groundLayers, QueryTriggerInteraction.Ignore);
+
+        return grounded;
+    }
+
+    private bool IsGroundedWhileAirborne()
+    {
+        Vector3 normal = CharacterControllerUtils.GetNormalWithSphereCast(_characterController, groundLayers);
+        float angle = Vector3.Angle(normal, Vector3.up);
+        print(angle);
+        bool validAngle = angle <= _characterController.slopeLimit;
+        
         return _characterController.isGrounded;
     }
-    
+
 }

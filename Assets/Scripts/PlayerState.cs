@@ -2,22 +2,22 @@ using UnityEngine;
 
 public class PlayerState: MonoBehaviour
 {
-    [field: SerializeField] public StatsType currentStat { get; private set; } = StatsType.Idling;
+    [field: SerializeField] public StateType currentStat { get; private set; } = StateType.Idling;
 
-    public void SetPlayerMovementState(StatsType stat)
+    public void SetPlayerMovementState(StateType stat)
     {
         currentStat=stat;
     }
 
     public bool InGroundedState()
     {
-        return currentStat==StatsType.Idling || 
-               currentStat==StatsType.Running || 
-               currentStat==StatsType.Sprinting;
+        return currentStat==StateType.Idling || 
+               currentStat==StateType.Running || 
+               currentStat==StateType.Sprinting;
     }
    
 }
-public enum StatsType
+public enum StateType
 {
     Idling,
     Running,

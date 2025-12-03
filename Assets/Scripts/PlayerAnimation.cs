@@ -31,11 +31,11 @@ public class PlayerAnimation : MonoBehaviour
 
     private void UpdateAnimationState()
     {
-        bool isIdling = _playerState.currentStat == StatsType.Idling;
-        bool isRunning = _playerState.currentStat == StatsType.Running;
-        bool isSprinting = _playerState.currentStat == StatsType.Sprinting;
-        bool isJumping = _playerState.currentStat == StatsType.Jumping;
-        bool isFalling = _playerState.currentStat == StatsType.Falling;
+        bool isIdling = _playerState.currentStat == StateType.Idling;
+        bool isRunning = _playerState.currentStat == StateType.Running;
+        bool isSprinting = _playerState.currentStat == StateType.Sprinting;
+        bool isJumping = _playerState.currentStat == StateType.Jumping;
+        bool isFalling = _playerState.currentStat == StateType.Falling;
         bool isGrounded = _playerState.InGroundedState();
 
         Vector2 inputTarget = isSprinting ? _playerLocomotionInput._moveInput * 1.5f : 
